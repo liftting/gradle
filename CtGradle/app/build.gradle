@@ -32,6 +32,18 @@ buildscript {
 //前面配置的 属性文件的名称，
 apply plugin: 'plugin.wm'
 
+
+myArgs {
+    sender='app args'
+    message='get app args data.'
+
+    nestArgs {
+        sender='app inner args'
+        message='get app inner args data.'
+    }
+}
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
