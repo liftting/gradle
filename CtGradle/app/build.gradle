@@ -46,4 +46,6 @@ myArgs {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile 'org.ow2.asm:asm:5.0.4'
 }
