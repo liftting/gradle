@@ -1,1 +1,1 @@
-include ':app', ':ctgradle2'
+include ':app', ':ctgradle2', ':smali'
