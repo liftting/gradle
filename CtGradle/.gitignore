@@ -1,3 +1,4 @@
+/repo
 /app/src/main/jniLibs
 *.iml
 .gradle

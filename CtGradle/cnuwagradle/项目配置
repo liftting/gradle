@@ -1,0 +1,24 @@
+插件groovy的项目配置：
+1，目录结构中
+plugin.wm.properties 这个命名， plugin.wm -- 是别人使用这个插件时要填写的名称
+
+像下面这样：
+
+
+//前面配置的 属性文件的名称，
+apply plugin: 'plugin.wm'
+
+2，上传配置
+
+group = 'com.xyg.wm.plugin'
+version = '1.0.0'
+
+当别人进行依赖时，需要配置 dependiences:
+如
+
+dependencies {
+        classpath 'com.xyg.wm.plugin:ctgradle2:1.0.0'
+    }
+
+这里的 ctgradle2 这个是项目名称，
+
