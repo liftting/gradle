@@ -39,6 +39,8 @@ buildscript {
 //前面配置的 属性文件的名称，
 apply plugin: 'plugin.wm'
 apply plugin: 'cyg.wm'
+apply plugin: 'cyg.show'
+
 
 myArgs {
     sender = 'app args'

@@ -1,5 +1,13 @@
 插件groovy的项目配置：
 1，目录结构中
+
+注意：
+这个配置文件是放在
+--- resources
+ -------META-INF
+    --------gradle-plugins
+    --------------cyg-wm.properties (是有多级目录的，注意)
+
 plugin.wm.properties 这个命名， plugin.wm -- 是别人使用这个插件时要填写的名称
 
 像下面这样：
@@ -7,6 +15,10 @@ plugin.wm.properties 这个命名， plugin.wm -- 是别人使用这个插件时
 
 //前面配置的 属性文件的名称，
 apply plugin: 'plugin.wm'
+
+====>>
+配置多个插件处理时，
+创建多个properties文件即可，
 
 2，上传配置
 
@@ -22,3 +34,4 @@ dependencies {
 
 这里的 ctgradle2 这个是项目名称，
 
+3,
