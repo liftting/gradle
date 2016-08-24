@@ -17,6 +17,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            res.srcDirs = ['src/main/res', 'src/main/res2']
+        }
+    }
+
 }
 
 buildscript {
@@ -34,12 +40,12 @@ apply plugin: 'plugin.wm'
 
 
 myArgs {
-    sender='app args'
-    message='get app args data.'
+    sender = 'app args'
+    message = 'get app args data.'
 
     nestArgs {
-        sender='app inner args'
-        message='get app inner args data.'
+        sender = 'app inner args'
+        message = 'get app inner args data.'
     }
 }
 
