@@ -1,0 +1,80 @@
+1,settings.gradle 文件很重要,名字必须是 settings.gradle。它里边用来告诉 Gradle,这个 multiprojects 包含多少个子 Project
+
+2,
+1) 每一个 Project 都必须设置一个 build.gradle 文件
+2) 对于 multi-projects build,需要在根目录下也放一个 build.gradle,和一个 settings.gradle
+3) 一个 Project 是由若干 tasks 来组成的,当 gradle xxx 的时候,实际上是要求 gradle 执行 xxx 任务。这个任务就能完成具体的工作
+
+gradle projects
+
+3, gradle tasks 查看任务信息
+gradle project-path:tasks 就行。注意,project-path 是目录名,后面必须跟冒号
+
+cd  ctgradle2
+gradle tasks
+
+task 有所谓的依赖关系。比如,
+assemble task 就依赖其他 task 先执行,assemble 才能完成最终的输出
+
+
+4， gradle 流程
+Init --(Hook1 )--- Configration阶段   ---Hook2 --- Execution parse --- Hook3
+
+Init: 初始化阶段。对我们前面的 multi-project build 而言,就是执行 settings.gradle
+
+Hoo1:
+gradle.beforeProject {
+    project ->
+}
+
+Configration阶段: 目标是解析每个project中的build.gradle。比如multi-project build 例子中,解析每个子目录中的 build.gradle
+
+
+Configuration阶段完了后,整个build的project以及内部的Task关系就确定 了。
+前面说过,一个 Project 包含很多 Task,每个 Task 之间有依赖关系。
+Configuration 会建立一个有向图来描述 Task 之间的依赖关系。所以,我们可以添 加一个 HOOK,即当 Task 关系图建立好后,执行一些操作
+
+Hook2: gradle.taskGraph.whenReady {
+graph->
+
+}
+
+Execution parse: 执行各个需要的task任务，
+
+Hook3: 这个是执行任务后进行hook
+
+
+4, 对象
+在 gradle 执行的时候,会将脚本转换成对应的对端:
+
+􏰀 4.1）Gradle 对象:当我们执行 gradle xxx 或者什么的时候,gradle 会从默认的配置 脚本中构造出一个 Gradle 对象。在整个执行过程中,只有这么一个对象。Gradle 对象的数据类型就是 Gradle。我们一般很少去定制这个默认的配置脚本。
+􏰀
+
+4.2）Project对象:每一个build.gradle会转换成一个Project对象。
+􏰀 4.3）Settings对象:显然,每一个settings.gradle都会转换成一个Settings对象。
+
+
+Project  对应的是 build.gradle 对象， 要依赖插件的加载
+
+5, 因为一个项目 多个 gradle脚本文件，如何设置属性多个脚本文件生效，
+
+Gradle 提供了一种名为 extra property 的方法。extra property 是额外属性的意思,
+在 第一次定义该属性的时候需要通过 ext 前缀来标示它是一个额外的属性
+
+
+
+6, task project
+//Task 是和 Project 关联的,所以,我们要利用 Project 的 task 函数来创建一个 Task task myTask <==myTask 是新建 Task 的名字
+task myTask { configure closure }
+task myType << { task action } <==注意,<<符号 是 doLast 的缩写
+task myTask(type: SomeType)
+task myTask(type: SomeType) { configure closure }
+
+6.1)
+一个 Task 包含若干 Action。
+所以,Task 有 doFirst 和 doLast 两个函数,用于 添加需要最先执行的 Action 和需要和需要最后执行的 Action。Action 就是一个闭 包。
+
+
+
+
+

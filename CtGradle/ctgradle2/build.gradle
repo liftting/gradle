@@ -21,3 +21,16 @@ uploadArchives {
         }
     }
 }
+
+println ">>> gradle in ctgradle2,gradle id is:" + gradle.hashCode();
+println ">>> gradle in ctgradle2,home dir is:" + gradle.getGradleHomeDir(); // 是我在哪个目录存储的gradle可执行程序
+
+//User Home Dir:是gradle自己设置的目录,里边存储了一些配置文件,以及 编译过程中的缓存文件,生成的类文件,编译中依赖的插件等等
+println ">>> gradle in ctgradle2,User home dir is:" + gradle.getGradleUserHomeDir();
+println ">>> gradle in ctgradle2,Parent is:" + gradle.parent;
+
+
+gradle.beforeProject {
+    project->
+        println ">>> gradle project:" + project.name;
+}

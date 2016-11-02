@@ -1,0 +1,88 @@
+apply plugin: 'com.android.application'
+//注意,加载了 Android 插件就不要加载 Java 插件了。因为 Android
+//插件本身就是拓展了 Java 插件
+
+android {
+    compileSdkVersion gradle.api
+    buildToolsVersion "24.0.2"
+
+    defaultConfig {
+        applicationId "wm.cyg.gradleapp"
+        minSdkVersion 15
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    sourceSets { ///配置源码路径。这个 sourceSets 是 Java 插件引入的
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dependencies {
+        //compile 表示编译和运行时候需要的 jar 包,fileTree 是一个函数, //dir:'libs',表示搜索目录的名称是 libs。include:['*.jar'],表示搜索目录下满足*.jar 名字的 jar
+        //包都作为依赖 jar 文件
+
+
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+        androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+            exclude group: 'com.android.support', module: 'support-annotations'
+        })
+        compile 'com.android.support:appcompat-v7:24.2.1'
+        compile 'com.android.support:design:24.2.1'
+        testCompile 'junit:junit:4.12'
+    }
+}
+
+clean.dependsOn 'cpCleanTask'
+
+task cpCleanTask() << {
+    cleanOutput() //cleanOutput 是 utils.gradle 中通过 extra 属性设置的 Closure
+}
+
+tasks.getByName("assemble") {
+    it.doLast {
+        println "$project.name: After assemble, jar libs are copied to local repository"
+
+        project.ext.versionName = android.defaultConfig.versionName
+        println "\t versionName = $versionName"
+
+        copyOutput()
+    }
+}
+
+/*
+因为我的项目只提供最终的 release 编译出来的 Jar 包给其他人,所以不需要编译 debug 版的东西
+当 Project 创建完所有任务的有向图后,我通过 afterEvaluate 函数设置一个回调 Closure。
+在这个回调 Closure 里,我 disable 了所有 Debug 的 Task
+*/
+
+project.afterEvaluate {
+    disableDebugBuild()
+}
+
+
+println ">>> gradle in gradleapp,gradle id is:" + gradle.hashCode();
+println ">>> gradle in gradleapp,home dir is:" + gradle.getGradleHomeDir(); // 是我在哪个目录存储的gradle可执行程序
+
+//User Home Dir:是gradle自己设置的目录,里边存储了一些配置文件,以及 编译过程中的缓存文件,生成的类文件,编译中依赖的插件等等
+println ">>> gradle in gradleapp,User home dir is:" + gradle.getGradleUserHomeDir();
+println ">>> gradle in gradleapp,Parent is:" + gradle.parent;
+
+
+gradle.beforeProject {
+    project ->
+        println ">>> gradle project:" + project.name;
+}
+

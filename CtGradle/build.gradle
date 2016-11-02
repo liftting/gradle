@@ -1,6 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-buildscript {
+println ">>> gradle in root build.gradle Configure for $project.name" //遍历子 Project,project 变量对应每个子 Project
+
+buildscript { //
     repositories {
         jcenter()
         mavenCentral()
@@ -10,7 +12,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        //dependencies 表示我们编译的时候,依赖 android 开发的 gradle 插件。插件对应的
+        classpath 'com.android.tools.build:gradle:2.2.2'
 
         classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.8'
 
@@ -19,6 +22,9 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+
+    //为每个子 Project 加载 utils.gradle 。当然,这句话可以放到 buildscript 花括号之后
+    apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
 }
 
 allprojects {

@@ -1,1 +1,38 @@
-include ':app', ':ctgradle2', ':smali', ':cnuwagradle'
+//通过 include 函数,将子 Project 的名字(其文件夹名)包含进来
+def initMinshengGradleEnvironment() {
+
+    println ">>> gradle settings.gradle Gradle Environment ....."
+
+    //干一些 special 的私活....
+    println ">>> gradle in setting,gradle id is:" + gradle.hashCode();
+    println ">>> gradle in setting,home dir is:" + gradle.getGradleHomeDir();
+    println ">>> gradle in setting,User home dir is:" + gradle.getGradleUserHomeDir();
+    println ">>> gradle in setting,Parent is:" + gradle.parent;
+
+    Properties properties = new Properties();
+    File propFile = new File(rootDir.getAbsolutePath() + "/local.properties");
+    properties.load(propFile.newInputStream());
+
+    //gradle 就是 gradle 对象。它默认是 Settings 和 Project 的成员变量。可直接获取
+    //ext 前缀,表明操作的是外置属性。api 是一个新的属性名。前面说过,只在 //第一次定义或者设置它的时候需要 ext 前缀
+    gradle.ext.username = properties.getProperty("username");
+    gradle.ext.password = properties.getProperty("password");
+    gradle.ext.api = properties.getProperty('sdk.api')
+
+    //不需要ext的浅醉
+    println ">>> gradle settings.gradle username:" + gradle.username;
+
+    println ">>> gradle settings.gradle Gradle Environment completes..."
+
+}
+//settings.gradle 加载的时候,会执行initMinshengGradleEnvironment
+
+initMinshengGradleEnvironment()
+
+// include 其实也是一个函数
+
+//include ':app', ':ctgradle2', ':smali', ':cnuwagradle', ':gradleapp'
+include ':ctgradle2', ':gradleapp'
+
+
+

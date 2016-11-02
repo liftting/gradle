@@ -1,0 +1,33 @@
+def getVersionName() {
+    File xmlFile = project.file("AndroidManifest.xml");
+    def rootManifest = new XmlSlurper().parse(xmlFile);
+
+    return rootManifest['@android:versionName'];
+}
+
+def cleanOutput(){
+    println ">>> gradle in utils.gradle: in cleanOutput() function"
+}
+
+def copyOutput(){
+    println ">>> gradle in utils.gradle: in copyOutput() function"
+}
+
+def disableDebugBuild(){
+    println ">>> gradle in utils.gradle: in disableDebugBuild() function"
+}
+
+//现在,想把这个 API 输出到各个 Project。由于这个 utils.gradle 会被每一个 Project Apply,所以
+// 我可以把 getVersionNameAdvanced 定义成一个 closure,然后赋值到一个外部属性
+// 下面的 ext 是谁的 ext?
+
+ext { //此段花括号中代码是闭包
+//除了 ext.xxx=value 这种定义方法外,还可以使用 ext{}这种书写方法。
+// ext{}不是 ext(Closure)对应的函数调用。但是 ext{}中的{}确实是闭包。
+
+    getVersionName = this.&getVersionName
+    cleanOutput = this.&cleanOutput
+    copyOutput = this.&copyOutput
+    disableDebugBuild = this.&disableDebugBuild
+
+}
