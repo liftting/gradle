@@ -23,8 +23,6 @@ buildscript { //
         // in the individual module build.gradle files
     }
 
-    //为每个子 Project 加载 utils.gradle 。当然,这句话可以放到 buildscript 花括号之后
-    apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
 }
 
 allprojects {
@@ -32,4 +30,39 @@ allprojects {
         jcenter()
         mavenCentral()
     }
+
+    //为每个子 Project 加载 utils.gradle 。当然,这句话可以放到 buildscript 花括号之后
+    // 放到这里， 且使用 project，这样在访问时，就对应到了，那个project加载，这个project对象就是哪个，
+    apply from: project.getRootDir().getAbsolutePath() + "/utils.gradle"
+
 }
+
+ext.projectIds = ['group': 'com.cyg.wm', 'version': '0.1.1']
+def rlog = '>>> gradle in Root CtGradle:'
+
+group = projectIds.group
+version = projectIds.version
+
+project(':gradleapp') {
+    task hello << {
+        println rlog + " Hello from gradleapp project"
+    }
+}
+
+project(':ctgradle2') {
+    group = projectIds.group
+    version = projectIds.version
+    apply plugin: 'java'
+
+    task hello(dependsOn: ':gradleapp:hello') << {
+        println rlog + " Hello from ctgradle2 project"
+    }
+
+}
+
+
+
+task hello << {
+    println rlog + " Hello from root project"
+}
+

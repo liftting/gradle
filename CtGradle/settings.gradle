@@ -32,7 +32,8 @@ initMinshengGradleEnvironment()
 // include 其实也是一个函数
 
 //include ':app', ':ctgradle2', ':smali', ':cnuwagradle', ':gradleapp'
-include ':ctgradle2', ':gradleapp'
+include ':ctgradle2', ':gradleapp', ':javalib', 'cnuwagradle'  // 字符串数组方式
+
 
 
 

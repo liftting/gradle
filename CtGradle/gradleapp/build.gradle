@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 //注意,加载了 Android 插件就不要加载 Java 插件了。因为 Android
 //插件本身就是拓展了 Java 插件
 
+def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
+
 android {
     compileSdkVersion gradle.api
     buildToolsVersion "24.0.2"
@@ -28,6 +34,33 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+
+                    println ">>> gradle applicationVariants clouser"
+
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')
+                            &&'debug'.equals(variant.buildType.name)) {
+                        def apkFile = new File(
+                                output.outputFile.getParent(),
+                                "testapp_${variant.flavorName}_v${variant.versionName}_${buildTime()}.apk")
+                        output.outputFile = apkFile
+                    }
+                }
+            }
+        }
+        //对不同渠道进行定制，
+//        productFlavors {
+//            dev{
+//                applicationId 'com.cyg.wm.dev'
+//            }
+//            google{
+//                applicationId 'com.cyg.wm.google'
+//            }
+//        }
+
     }
 
     dependencies {
@@ -86,3 +119,7 @@ gradle.beforeProject {
         println ">>> gradle project:" + project.name;
 }
 
+
+task showName << {
+    println gradle.username + " >>> " + getVersionName();
+}

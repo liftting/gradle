@@ -1,5 +1,5 @@
 def getVersionName() {
-    File xmlFile = project.file("AndroidManifest.xml");
+    File xmlFile = project.file("src/main/AndroidManifest.xml");
     def rootManifest = new XmlSlurper().parse(xmlFile);
 
     return rootManifest['@android:versionName'];

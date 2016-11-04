@@ -76,5 +76,27 @@ task myTask(type: SomeType) { configure closure }
 
 
 
+========
+/*
+   我们在 gradle 解析完整个任务之后，找到对应的 Task，然后在里边添加一个 doFirst Action
+   这样能确保编译开始的时候，我们就把 runtime_config 文件准备好了。
+
+   注意，必须在 afterEvaluate 里边才能做，否则 gradle 没有建立完任务有向图，你是找不到
+
+   什么 preDebugBuild 之类的任务的
+
+   */
+
+项目配置
+
+Root project 'CtGradle'
++--- Project ':cnuwagradle'
++--- Project ':ctgradle2'
+\--- Project ':gradleapp'
+
+
+
+
+
 
 

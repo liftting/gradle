@@ -1,5 +1,16 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
+//apply plugin: 'java'
+apply plugin: 'war'
+
+//apply from : projectDir.absolutePath + "/src/main/groovy/com/xyg/wm/ReleaseVersionTask.java"
+
+
+def log = ">>> gradle in ctgradle2:";
+
+println log + " rootPath :" + project.getRootDir().getAbsolutePath();
+println log + " projectPatg :" + projectDir.absolutePath; // ~/ctgradle2
+
 
 dependencies {
     compile gradleApi()
@@ -22,15 +33,232 @@ uploadArchives {
     }
 }
 
-println ">>> gradle in ctgradle2,gradle id is:" + gradle.hashCode();
-println ">>> gradle in ctgradle2,home dir is:" + gradle.getGradleHomeDir(); // 是我在哪个目录存储的gradle可执行程序
+println log + "gradle id is:" + gradle.hashCode();
+println log + "home dir is:" + gradle.getGradleHomeDir(); // 是我在哪个目录存储的gradle可执行程序
 
 //User Home Dir:是gradle自己设置的目录,里边存储了一些配置文件,以及 编译过程中的缓存文件,生成的类文件,编译中依赖的插件等等
-println ">>> gradle in ctgradle2,User home dir is:" + gradle.getGradleUserHomeDir();
-println ">>> gradle in ctgradle2,Parent is:" + gradle.parent;
+println log + "User home dir is:" + gradle.getGradleUserHomeDir();
+println log + "Parent is:" + gradle.parent;
 
 
 gradle.beforeProject {
-    project->
-        println ">>> gradle project:" + project.name;
+    project ->
+        println log + project.name;
 }
+
+//调用的是 project的 API
+setDescription("<<CtGradleDescription>>")
+println log + "project Description of project $name " + project.description
+
+project.ext.ctinnerName = "this is ctgradle2 inner name";
+
+ext {
+    otherName = "this is ctgradle2 inner other name"
+}
+
+println log + project.ctinnerName;
+println log + project.otherName;
+
+// task  action
+version = '0.0.1-SNAPSHOT'
+
+task printVersion {
+    doFirst {
+        println log + "show version first log";
+    }
+
+    doLast {
+        println log + "show version:" + version;
+    }
+}
+
+printVersion.doFirst {
+    println log + "is very first";
+}
+printVersion << {
+    println log + "is very last Version";
+}
+
+// depend task的 依赖
+task first << {
+    println log + " first task "
+}
+
+task second << {
+    println log + " second task "
+}
+
+// logger
+//group 定义task的逻辑分组  使用 gradle tasks 显示
+// task 这里传递了 dependsOn 依赖，这个顺序有保证，但里面的顺序是按语法顺序来处理的，
+task loggerVersion(dependsOn: [second, first]) {
+
+    group = 'version-group';
+    description = 'this is logger version task';
+
+    doLast {
+        logger.quiet(log + "Version: $version");
+    }
+}
+
+task third << {
+    println log + " third task "
+}
+
+third.dependsOn('loggerVersion')
+
+// 配置
+ext.versionFile = file('version.properties')
+
+task loadVersion {
+    project.version = readVersion(); // 这个是属性配置，
+}
+
+class ProjectVersion {
+    Integer major
+    Integer minor
+    Boolean release
+
+    ProjectVersion(Integer major, Integer minor) {
+        this.major = major
+        this.minor = minor
+        this.release = Boolean.FALSE
+    }
+
+    ProjectVersion(Integer major, Integer minor, Boolean release) {
+        this(major, minor)
+        this.release = release
+    }
+
+    @Override
+    String toString() {
+        "$major.$minor${release ? '' : '-SNAPSHOT'}"
+    }
+}
+
+ProjectVersion readVersion() {
+    logger.quiet 'Reading the version file.'
+    if (!versionFile.exists()) {
+        throw new GradleException("Required version file does not exist: $versionFile.canonicalPath ")
+
+    }
+    Properties versionProps = new Properties()
+    versionFile.withInputStream { stream ->
+        versionProps.load(stream)
+    }
+    new ProjectVersion(versionProps.major.toInteger(), versionProps.minor.toInteger(), versionProps.release.toBoolean())
+}
+
+
+task ctPrintVersion << {
+    println log + "this is ctGradle-Version:$version";
+}
+
+//
+
+//version  === project.version
+// :ctgradle2:makeReleaseVersion UP-TO-DATE   当 inputs  outputs不变，task不执行
+task makeReleaseVersion(group: 'versioning', description: 'Makes project release version task') {
+    inputs.property('release', version.release)  //上面定义的属性配置
+    outputs.file versionFile // 上面已经创建的文件变量
+
+    doLast {
+        version.release = true
+        ant.propertyfile(file: versionFile) {
+            entry(key: 'release', type: 'string', operation: '=', value: 'true')
+        }
+    }
+}
+
+// ====  使用类来定义  Task， 外部定义，暂时未知 如何查找？？？？
+
+class ReleaseVersionTask extends DefaultTask {
+
+    @Input
+    Boolean release
+    @OutputFile
+    File destFile
+
+    ReleaseVersionTask() {
+        group = 'versioning';
+        description = 'Makes project release version task';
+    }
+
+    @TaskAction
+    void start() {
+        project.version.release = true
+        ant.propertyfile(file: destFile) {
+            entry(key: 'release', type: 'string', operation: '=', value: 'true')
+        }
+    }
+
+}
+
+import com.wm.cyg.InnerReleaseVersionTask
+
+task makeRelVersionNew(type: InnerReleaseVersionTask) {
+    release = version.release;  //输入是为了校验
+    destFile = versionFile;
+}
+
+// ==== 内置task
+/***
+ * :ctgradle2:makeRelVersionNew
+ :ctgradle2:compileJava UP-TO-DATE
+ :ctgradle2:compileGroovy UP-TO-DATE
+ :ctgradle2:processResources UP-TO-DATE
+ :ctgradle2:classes UP-TO-DATE
+ :ctgradle2:war
+ :ctgradle2:createDistribution
+ :ctgradle2:backupReleaseDistr
+ :ctgradle2:release
+ */
+
+task createDistribution(type: Zip, dependsOn: makeRelVersionNew) { //下面的配置是，告诉task 其输入属性配置，
+    from war.outputs.files;
+
+    from(sourceSets*.allSource) { //将所有的资源文件放入到 Zip的 src目录中，
+        into 'src'
+    }
+
+    from(rootDir) {
+        include versionFile.name  // 添加版本文件
+    }
+
+}
+
+task backupReleaseDistr(type: Copy) {
+    from createDistribution.outputs.files
+    into '$buildDir/backup'
+}
+
+task release(dependsOn: backupReleaseDistr) << {
+    logger.quiet(log + "release BackUpWar and release project...")
+}
+
+// === task挂载到有向图中
+// 这个有向图  只是在构建你编译的任务时 依赖的task的图，
+gradle.taskGraph.whenReady {
+    org.gradle.api.execution.TaskExecutionGraph graph ->
+        println log + " in taskGraph whenReady"
+        List<Task> allTask = graph.getAllTasks();
+        for (int i = 0; i < allTask.size(); i++) {
+            println log + ":in Graph Task-TaskName:" + allTask.get(i).name;
+        }
+        if (graph.hasTask(makeRelVersionNew)) {
+
+            println log + " in taskGraph has release"
+            if (!version.release) {
+                version.release = true
+                ant.propertyfile(file: versionFile) {
+                    entry(key: 'release', type: 'string', operation: '=', value: 'true')
+                }
+            }
+        }
+}
+
+task build(dependsOn: makeRelVersionNew) << {
+    println log + "this is myself build"
+}
+
+
