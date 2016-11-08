@@ -7,6 +7,7 @@ import org.gradle.api.execution.TaskExecutionListener
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.tasks.TaskState
+import org.gradle.platform.base.Variant
 import org.gradle.util.Clock
 
 

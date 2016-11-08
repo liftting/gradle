@@ -72,7 +72,7 @@ task myTask(type: SomeType) { configure closure }
 
 6.1)
 一个 Task 包含若干 Action。
-所以,Task 有 doFirst 和 doLast 两个函数,用于 添加需要最先执行的 Action 和需要和需要最后执行的 Action。Action 就是一个闭 包。
+所以,Task 有 doFirst 和 dand   oLast 两个函数,用于 添加需要最先执行的 Action 和需要和需要最后执行的 Action。Action 就是一个闭 包。
 
 
 

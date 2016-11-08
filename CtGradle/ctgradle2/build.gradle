@@ -194,9 +194,9 @@ class ReleaseVersionTask extends DefaultTask {
 
 }
 
-import com.wm.cyg.InnerReleaseVersionTask
+//import com.wm.cyg.InnerReleaseVersionTask
 
-task makeRelVersionNew(type: InnerReleaseVersionTask) {
+task makeRelVersionNew(type: ReleaseVersionTask) {
     release = version.release;  //输入是为了校验
     destFile = versionFile;
 }
@@ -257,8 +257,13 @@ gradle.taskGraph.whenReady {
         }
 }
 
-task build(dependsOn: makeRelVersionNew) << {
+task newBuild(dependsOn: makeRelVersionNew) << {
     println log + "this is myself build"
 }
 
+project.afterEvaluate {
+    println log + "this is myself build-in afterEvaluate:"
+}
+
+//version = '1.0.0'
 

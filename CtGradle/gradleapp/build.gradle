@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+import com.android.build.gradle.api.ApkVariant
+
 //注意,加载了 Android 插件就不要加载 Java 插件了。因为 Android
 //插件本身就是拓展了 Java 插件
 
@@ -9,15 +11,15 @@ def buildTime() {
 }
 
 android {
-    compileSdkVersion gradle.api
-    buildToolsVersion "24.0.2"
+    compileSdkVersion = gradle.api
+    buildToolsVersion = "24.0.2"
 
     defaultConfig {
-        applicationId "wm.cyg.gradleapp"
+        applicationId = "wm.cyg.gradleapp"
         minSdkVersion 15
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode = 1
+        versionName = "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -36,13 +38,13 @@ android {
         }
 
         debug {
-            applicationVariants.all { variant ->
+            applicationVariants.all { ApkVariant variant ->
                 variant.outputs.each { output ->
 
                     println ">>> gradle applicationVariants clouser"
 
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')
-                            &&'debug'.equals(variant.buildType.name)) {
+                            && 'debug'.equals(variant.buildType.name)) {
                         def apkFile = new File(
                                 output.outputFile.getParent(),
                                 "testapp_${variant.flavorName}_v${variant.versionName}_${buildTime()}.apk")
@@ -105,6 +107,8 @@ project.afterEvaluate {
     disableDebugBuild()
 }
 
+def log = '>>> gradle in gradleapp:'
+
 
 println ">>> gradle in gradleapp,gradle id is:" + gradle.hashCode();
 println ">>> gradle in gradleapp,home dir is:" + gradle.getGradleHomeDir(); // 是我在哪个目录存储的gradle可执行程序
@@ -123,3 +127,17 @@ gradle.beforeProject {
 task showName << {
     println gradle.username + " >>> " + getVersionName();
 }
+
+task showApplicationVariants << {
+    project.android['applicationVariants'].all { ApkVariant variant ->
+//        variant.outputs.each { output ->
+//            def file = output.outputFile
+//            println log + ":applicationVariants output fileName:" + file.name; //路径是apk outputs路径下的文件
+//        }
+        println log + variant.toString();
+        def path = "source/apt";
+        def file = new File(path, variant.dirName);
+        println log + ":path is $file.name";
+    }
+}
+
